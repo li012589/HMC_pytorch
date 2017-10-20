@@ -8,7 +8,7 @@ class Ring2d():
         self.name = name
     def __call__(self,z):
         z = Variable(z,requires_grad=True)
-        return self._forward(z)
+        return self._forward(z).data
     def _forward(self,z):
         z1 = z[:,0]
         z2 = z[:,1]
@@ -19,7 +19,7 @@ class Ring2d():
         out = self._forward(z)
         batchSize = z.size()[0]
         out.backward(torch.ones(batchSize))
-        return z.grad
+        return z.grad.data
 
 if __name__ == "__main__":
     z = (torch.Tensor([[1,2],[3,4],[5,6]]))
