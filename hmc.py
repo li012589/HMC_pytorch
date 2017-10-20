@@ -28,7 +28,6 @@ class HMCSampler:
 
     def sample(self,steps,batchSize):
         z = self.prior(batchSize)
-        print(z.size())
         zpack = [z.numpy()]
         for i in range(steps):
             v = torch.randn(z.size())
@@ -48,5 +47,14 @@ if __name__ == "__main__":
         return torch.randn(batchSize,modelSize)
     model = Ring2d()
     sampler = HMCSampler(model,prior)
-    res = sampler.sample(80,10)
-    print(res)
+    BatchSize = 100
+    Steps = 800
+    BurnIn = 300
+    res = sampler.sample(Steps,BatchSize)
+    res=np.array(res)
+    #print(res)
+    z_o = res[BurnIn:,:]
+    z_ = np.reshape(z_o,[-1,modelSize])
+    z1_,z2_= z_[:,0],z_[:,1]
+    print("mean: ",np.mean(z1_))
+    print("std: ",np.std(z1_))
