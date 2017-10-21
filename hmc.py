@@ -2,6 +2,8 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 from utils.metropolis import metropolis
+from utils.autoCorrelation import autoCorrelationTimewithErr
+from utils.acceptRate import acceptanceRate
 
 def hmcUpdate(z,v,model,stepSize,interSteps):
     force = model.backward(z)
@@ -40,7 +42,6 @@ class HMCSampler:
         return zpack
 
 if __name__ == "__main__":
-    print("start sampler")
     from model.ring2d import Ring2d
     modelSize = 2
     def prior(batchSize):
@@ -50,6 +51,9 @@ if __name__ == "__main__":
     BatchSize = 100
     Steps = 800
     BurnIn = 300
+    bins = 2
+    print("start sampler")
+    print("")
     res = sampler.sample(Steps,BatchSize)
     res=np.array(res)
     #print(res)
@@ -58,3 +62,6 @@ if __name__ == "__main__":
     z1_,z2_= z_[:,0],z_[:,1]
     print("mean: ",np.mean(z1_))
     print("std: ",np.std(z1_))
+    autoCorrelation,error =  autoCorrelationTimewithErr(z_o[:,:,0],bins)
+    acceptRate = acceptanceRate(z_o)
+    print('Acceptance Rate:',(acceptRate),'Autocorrelation Time:',(autoCorrelation))
