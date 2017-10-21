@@ -52,8 +52,9 @@ if __name__ == "__main__":
     Steps = 800
     BurnIn = 300
     bins = 2
-    print("start sampler")
-    print("")
+    print("start sampler on model: ",model.name)
+    print("Samples: ",BatchSize,". Steps: ",Steps)
+    print("BurnIn: ",BurnIn)
     res = sampler.sample(Steps,BatchSize)
     res=np.array(res)
     #print(res)
