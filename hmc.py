@@ -56,9 +56,10 @@ class HMCSampler:
             accept = metropolis(self.hamiltonian(self.model(z),v),self.hamiltonian(self.model(zp),vp))
             if self.dynamicStepSize:
                 self.stepSize = self.updateStepSize(accept,self.stepSize)
-            accept = torch.stack([accept,accept],1)
+            #print(type(accept.numpy()))
+            accept = np.array([accept.numpy()]*self.model.size).transpose()
             mask = 1-accept
-            z = torch.from_numpy(z.numpy()*mask.numpy() +zp.numpy()*accept.numpy())
+            z = torch.from_numpy(z.numpy()*mask +zp.numpy()*accept)
             zpack.append(z.numpy())
         return zpack
 
