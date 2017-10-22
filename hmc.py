@@ -5,36 +5,45 @@ from utils.metropolis import metropolis
 from utils.autoCorrelation import autoCorrelationTimewithErr
 from utils.acceptRate import acceptanceRate
 
-def hmcUpdate(z,v,model,stepSize,interSteps):
-    force = model.backward(z)
-    vp = v - 0.5*stepSize*force
-    zp  = z + stepSize*vp
-    for i in range(interSteps):
-        force = model.backward(zp)
-        vp -= stepSize*force
-        zp += stepSize*vp
-    force = model.backward(z)
-    vp = v - 0.5*stepSize*force
-    return zp,vp
-
-def hamiltonian(energy,v):
-    return energy+0.5*torch.sum(v**2,1)
 
 class HMCSampler:
-    def __init__(self,model,prior,stepSize=0.1,interSteps=10):
+    def __init__(self,model,prior,stepSize=0.1,interSteps=10,targetAcceptRate=0.65,acceptDecay=0.9,stepSizeMin=0.001,stepSizeMax=1000,stepSizeDec=0.97,stepSizeInc=1.03,dynamicStepSize=False):
         pass
         self.model = model
         self.prior = prior
         self.stepSize = stepSize
         self.interSteps = interSteps
+        self.dynamicStepSize = dynamicStepSize
+
+    def updateStepSize(self,accept):
+        pass
+
+    @staticmethod
+    def hmcUpdate(z,v,model,stepSize,interSteps):
+        force = model.backward(z)
+        vp = v - 0.5*stepSize*force
+        zp  = z + stepSize*vp
+        for i in range(interSteps):
+            force = model.backward(zp)
+            vp -= stepSize*force
+            zp += stepSize*vp
+        force = model.backward(z)
+        vp = v - 0.5*stepSize*force
+        return zp,vp
+
+    @staticmethod
+    def hamiltonian(energy,v):
+        return energy+0.5*torch.sum(v**2,1)
 
     def sample(self,steps,batchSize):
         z = self.prior(batchSize)
         zpack = [z.numpy()]
         for i in range(steps):
             v = torch.randn(z.size())
-            zp,vp = hmcUpdate(z,v,self.model,self.stepSize,self.interSteps)
-            accept = metropolis(hamiltonian(self.model(z),v),hamiltonian(self.model(zp),vp))
+            zp,vp = self.hmcUpdate(z,v,self.model,self.stepSize,self.interSteps)
+            accept = metropolis(self.hamiltonian(self.model(z),v),self.hamiltonian(self.model(zp),vp))
+            if self.dynamicStepSize:
+                self.stepSize = self.updateStepSize(accept)
             accept = torch.stack([accept,accept],1)
             mask = 1-accept
             z = torch.from_numpy(z.numpy()*mask.numpy() +zp.numpy()*accept.numpy())
