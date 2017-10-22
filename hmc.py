@@ -7,16 +7,28 @@ from utils.acceptRate import acceptanceRate
 
 
 class HMCSampler:
-    def __init__(self,model,prior,stepSize=0.1,interSteps=10,targetAcceptRate=0.65,acceptDecay=0.9,stepSizeMin=0.001,stepSizeMax=1000,stepSizeDec=0.97,stepSizeInc=1.03,dynamicStepSize=False):
+    def __init__(self,model,prior,stepSize=0.1,interSteps=10,targetAcceptRate=0.65,stepSizeMin=0.001,stepSizeMax=1000,stepSizeChangeRatio=0.03,dynamicStepSize=False):
         pass
         self.model = model
         self.prior = prior
         self.stepSize = stepSize
         self.interSteps = interSteps
         self.dynamicStepSize = dynamicStepSize
+        if self.dynamicStepSize:
+            self.targetAcceptRate = targetAcceptRate
+            self.stepSizeMax = stepSizeMax
+            self.stepSizeMin = stepSizeMin
+            self.stepSizeInc = stepSizeChangeRatio+1
+            self.stepSizeDec = 1-stepSizeChangeRatio
 
-    def updateStepSize(self,accept):
-        pass
+    def updateStepSize(self,accept,stepSize):
+        ratio = torch.sum(accept)/accept.shape[0]*accept[1]
+        if ratio > self.targetAcceptRate:
+            newStepSize = stepSize*self.stepSizeInc
+        else:
+            newStepSize = stepSize*self.stepSizeDec
+        newStepSize = max(min(self.stepSizeMax,newStepSize),self.stepSizeMin)
+        return newStepSize
 
     @staticmethod
     def hmcUpdate(z,v,model,stepSize,interSteps):
@@ -43,7 +55,7 @@ class HMCSampler:
             zp,vp = self.hmcUpdate(z,v,self.model,self.stepSize,self.interSteps)
             accept = metropolis(self.hamiltonian(self.model(z),v),self.hamiltonian(self.model(zp),vp))
             if self.dynamicStepSize:
-                self.stepSize = self.updateStepSize(accept)
+                self.stepSize = self.updateStepSize(accept,self.stepSize)
             accept = torch.stack([accept,accept],1)
             mask = 1-accept
             z = torch.from_numpy(z.numpy()*mask.numpy() +zp.numpy()*accept.numpy())
@@ -56,7 +68,7 @@ if __name__ == "__main__":
     def prior(batchSize):
         return torch.randn(batchSize,modelSize)
     model = Ring2d()
-    sampler = HMCSampler(model,prior)
+    sampler = HMCSampler(model,prior,dynamicStepSize=True)
     BatchSize = 100
     Steps = 800
     BurnIn = 300
