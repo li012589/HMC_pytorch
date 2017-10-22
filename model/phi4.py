@@ -38,9 +38,11 @@ class phi4(energy):
         for i in range(self.n):
             tmp = Variable(torch.zeros(z[:,0].shape))
             for j in range(self.d):
-                tmp += z[:,self.hoppingTable[i][j]]
-            S += -2*self.kappa*tmp
-        S += torch.sum(z**2)+self.lamb*torch.sum((z**2-1)**2)
+                #print(z[:,self.hoppingTable[i][j*2]])
+                tmp += z[:,self.hoppingTable[i][j*2]]
+            #print("tmp: ",tmp)
+            S += -2*self.kappa*tmp*z[:,i]
+        S+=torch.sum(z**2,1)+self.lamb*torch.sum((z**2-1)**2,1)
         return S
 
 if __name__ == "__main__":
