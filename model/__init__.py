@@ -3,8 +3,9 @@ import torch
 from torch.autograd import Variable
 
 class energy():
-    def __init__(self,name="model"):
+    def __init__(self,size,name="model"):
         self.name = name
+        self.size = size
     def __call__(self,z):
         z = Variable(z,requires_grad=True)
         return self._forward(z).data

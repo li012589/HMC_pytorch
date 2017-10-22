@@ -6,7 +6,7 @@ from model import energy
 
 class Ring2d(energy):
     def __init__(self,name="Ring2d"):
-        super(Ring2d,self).__init__(name)
+        super(Ring2d,self).__init__(2,name)
     def _forward(self,z):
         z1 = z[:,0]
         z2 = z[:,1]

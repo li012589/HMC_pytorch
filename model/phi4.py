@@ -9,7 +9,7 @@ class phi4(energy):
             name = "phi4_l"+str(l)+"_d"+str(d)+"_kappa"+str(kappa)+"_lamb"+str(lamb)
         else:
             pass
-        super(phi4,self).__init__(name)
+        super(phi4,self).__init__(n,name)
         assert n == l**d
         self.d = d
         self.n = n
