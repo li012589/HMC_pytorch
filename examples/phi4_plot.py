@@ -14,7 +14,7 @@ import torch
 dims = 3
 l = 6
 Kappa = [0.18]#[i/100 for i in range(15,23)]
-l = 1.145
+lamb = 1.145
 BatchSize = 100
 Steps = 800
 BurnIn = 300
