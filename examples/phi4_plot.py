@@ -11,6 +11,7 @@ from utils.acceptRate import acceptanceRate
 import numpy as np
 import torch
 
+ifplot = True
 dims = 3
 l = 6
 Kappa = [i/100 for i in range(15,23)]
@@ -50,13 +51,17 @@ for kappa in Kappa:
     print("measure: <|m|/V>",m_abs_p,"with error:",error)
     print('Acceptance Rate:',(acceptRate),'Autocorrelation Time:',(autoCorrelation))
 
-import matplotlib.pyplot as plt
-x = Kappa
-fig, ax = plt.subplots()
-ax.errorbar(x,res,yerr=errors)
-ax.set_title("<|m|/V,lambda = 1.145>")
-ax.set_ylabel("<|m|/V>")
-ax.set_xlabel("kappa")
-plt.show()
+print("Results: ",res)
+print("Errors: ",errors)
+
+if ifplot:
+    import matplotlib.pyplot as plt
+    x = Kappa
+    fig, ax = plt.subplots()
+    ax.errorbar(x,res,yerr=errors)
+    ax.set_title("<|m|/V,lambda = 1.145>")
+    ax.set_ylabel("<|m|/V>")
+    ax.set_xlabel("kappa")
+    plt.show()
 
 
