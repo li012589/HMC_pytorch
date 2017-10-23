@@ -13,11 +13,11 @@ import torch
 
 dims = 3
 l = 6
-Kappa = [0.18]#[i/100 for i in range(15,23)]
+Kappa = [i/100 for i in range(15,23)]
 lamb = 1.145
-BatchSize = 100
-Steps = 800
-BurnIn = 300
+BatchSize = 10
+Steps = 80
+BurnIn = 30
 bins = 2
 modelSize = l**dims
 
@@ -33,21 +33,30 @@ for kappa in Kappa:
     print("start sampler on model: ",model.name)
     print("Samples: ",BatchSize,". Steps: ",Steps)
     print("BurnIn: ",BurnIn)
-    res = sampler.sample(Steps,BatchSize)
-    res=np.array(res)
+    ret = sampler.sample(Steps,BatchSize)
+    ret=np.array(ret)
     #print(res)
-    z_o = res[BurnIn:,:]
+    z_o = ret[BurnIn:,:]
     m_abs = np.mean(z_o,2)
     m_abs = np.absolute(m_abs)
 
     m_abs_p = np.mean(m_abs)
     autoCorrelation,error =  autoCorrelationTimewithErr(m_abs,bins)
-    acceptRate = acceptance_rate(z_o)
-    print("kappa:",mod.kappa)
-    print("lambda:",mod.lamb)
+    acceptRate = acceptanceRate(z_o)
+    print("kappa:",model.kappa)
+    print("lambda:",model.lamb)
     res.append(m_abs_p)
     errors.append(error)
     print("measure: <|m|/V>",m_abs_p,"with error:",error)
     print('Acceptance Rate:',(acceptRate),'Autocorrelation Time:',(autoCorrelation))
+
+import matplotlib.pyplot as plt
+x = Kappa
+fig, ax = plt.subplots()
+ax.errorbar(x,res,yerr=errors)
+ax.set_title("<|m|/V,lambda = 1.145>")
+ax.set_ylabel("<|m|/V>")
+ax.set_xlabel("kappa")
+plt.show()
 
 
