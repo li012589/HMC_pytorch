@@ -49,7 +49,7 @@ class HMCSampler:
 
     def sample(self,steps,batchSize):
         z = self.prior(batchSize)
-        zpack = [z.numpy()]
+        zpack = []
         for i in range(steps):
             v = torch.randn(z.size())
             zp,vp = self.hmcUpdate(z,v,self.model,self.stepSize,self.interSteps)
@@ -57,7 +57,6 @@ class HMCSampler:
             if self.dynamicStepSize:
                 self.stepSize = self.updateStepSize(accept,self.stepSize)
             #print(type(accept.numpy()))
-            print(self.model.size)
             accept = np.array([accept.numpy()]*self.model.size).transpose()
             mask = 1-accept
             z = torch.from_numpy(z.numpy()*mask +zp.numpy()*accept)
