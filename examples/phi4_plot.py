@@ -16,9 +16,9 @@ dims = 3
 l = 6
 Kappa = [i/100 for i in range(15,23)]
 lamb = 1.145
-BatchSize = 10
-Steps = 80
-BurnIn = 30
+BatchSize = 100
+Steps = 800
+BurnIn = 300
 bins = 2
 modelSize = l**dims
 
