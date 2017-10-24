@@ -39,8 +39,8 @@ class HMCSampler:
             force = model.backward(zp)
             vp -= stepSize*force
             zp += stepSize*vp
-        force = model.backward(z)
-        vp = v - 0.5*stepSize*force
+        force = model.backward(zp)
+        vp = vp - 0.5*stepSize*force
         return zp,vp
 
     @staticmethod
@@ -57,6 +57,7 @@ class HMCSampler:
             if self.dynamicStepSize:
                 self.stepSize = self.updateStepSize(accept,self.stepSize)
             #print(type(accept.numpy()))
+            print(self.model.size)
             accept = np.array([accept.numpy()]*self.model.size).transpose()
             mask = 1-accept
             z = torch.from_numpy(z.numpy()*mask +zp.numpy()*accept)
