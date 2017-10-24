@@ -3,5 +3,4 @@
 **/.DS_Store
 **/test.py
 **/test*.py
-**/*.png
 test/*
