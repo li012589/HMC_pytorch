@@ -11,10 +11,16 @@ from utils.acceptRate import acceptanceRate
 import numpy as np
 import torch
 
-ifplot = True
+import argparse
+parser = argparse.ArgumentParser(description='')
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument("-show", action='store_true',  help="show figure right now")
+group.add_argument("-outname", default="result.pdf",  help="output pdf file")
+
+#explain these variables 
 dims = 3
 l = 6
-Kappa = [i/100 for i in range(15,23)]
+kappalist = np.arange(0.15,0.22,0.01)
 lamb = 1.145
 BatchSize = 100
 Steps = 800
@@ -28,7 +34,7 @@ errors = []
 def prior(batchSize):
     return torch.randn(batchSize,modelSize)
 
-for kappa in Kappa:
+for kappa in kappalist:
     model = phi4(modelSize,l,dims,kappa,lamb)
     sampler = HMCSampler(model,prior,dynamicStepSize=True)
     print("start sampler on model: ",model.name)
@@ -54,14 +60,14 @@ for kappa in Kappa:
 print("Results: ",res)
 print("Errors: ",errors)
 
-if ifplot:
-    import matplotlib.pyplot as plt
-    x = Kappa
-    fig, ax = plt.subplots()
-    ax.errorbar(x,res,yerr=errors)
-    ax.set_title("<|m|/V,lambda = 1.145>")
-    ax.set_ylabel("<|m|/V>")
-    ax.set_xlabel("kappa")
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+ax.errorbar(kappalist,res,yerr=errors)
+ax.set_title("\langle$|m|/V,\lambda = 1.145\rangle$")
+ax.set_ylabel("$\langle|m|/V\rangle$")
+ax.set_xlabel("$\kappa$")
+
+if args.show:
     plt.show()
-
-
+else:
+    plt.savefig(args.outname, dpi=300, transparent=True)
