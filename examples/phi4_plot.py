@@ -17,10 +17,10 @@ group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("-show", action='store_true',  help="show figure right now")
 group.add_argument("-outname", default="result.pdf",  help="output pdf file")
 
-#explain these variables 
+#explain these variables
 dims = 3
 l = 6
-kappalist = np.arange(0.15,0.22,0.01)
+kappalist = np.arange(0.15,0.22,0.01).tolist()
 lamb = 1.145
 BatchSize = 100
 Steps = 800
